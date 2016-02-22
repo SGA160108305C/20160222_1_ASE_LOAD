@@ -180,14 +180,26 @@ void AseLoader::Process_MATERIAL(OUT MaterialTexture* mt)
 		else if (IsEqual(aseToken, ID_AMBIENT))
 		{
 			//
+			material.Ambient.r = GetFloat();
+			material.Ambient.g = GetFloat();
+			material.Ambient.b = GetFloat();
+			material.Ambient.a = 1.0f;
 		}
 		else if (IsEqual(aseToken, ID_DIFFUSE))
 		{
 			//
+			material.Diffuse.r = GetFloat();
+			material.Diffuse.g = GetFloat();
+			material.Diffuse.b = GetFloat();
+			material.Diffuse.a = 1.0f;
 		}
 		else if (IsEqual(aseToken, ID_SPECULAR))
 		{
 			//
+			material.Specular.r = GetFloat();
+			material.Specular.g = GetFloat();
+			material.Specular.b = GetFloat();
+			material.Specular.a = 1.0f;
 		}
 		else if (IsEqual(aseToken, ID_MAP_DIFFUSE))
 		{
@@ -213,6 +225,7 @@ void AseLoader::Process_MAP_DIFFUSE(OUT MaterialTexture* mt)
 		else if (IsEqual(aseToken, ID_BITMAP))
 		{
 			//
+			mt->texture = TextureManager::GetTexture(GetToken());
 		}
 	} while (level > 0);
 }
@@ -255,6 +268,8 @@ void AseLoader::Process_GEOMOBJECT(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_MATERIAL_REF))
 		{		
 			//
+			int mtRef = GetInteger();
+			frame->SetMaterialTexture(materialTextures[mtRef]);
 		}
 		else if (IsEqual(aseToken, ID_TM_ANIMATION))
 		{		
@@ -288,6 +303,7 @@ void AseLoader::Process_MESH(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_MESH_NUMFACES))
 		{		
 			//
+			vertexArray.resize(GetInteger() * 3);
 		}
 		else if (IsEqual(aseToken, ID_MESH_VERTEX_LIST))
 		{		
@@ -370,6 +386,18 @@ void AseLoader::Process_MESH_FACE_LIST(IN std::vector<D3DXVECTOR3>& pos, OUT std
 		else if (IsEqual(aseToken, ID_MESH_FACE))
 		{		
 			//
+			//*MESH_FACE    0:    A : 0 B : 1 C : 2 AB : 1 BC : 1 CA : 1
+			int index = GetInteger();
+			GetToken();
+			int a = GetInteger();
+			GetToken();
+			int b = GetInteger();
+			GetToken();
+			int c = GetInteger();
+
+			vertex[index * 3 + 0].pos = pos[a];
+			vertex[index * 3 + 1].pos = pos[c];
+			vertex[index * 3 + 2].pos = pos[b];
 		}
 	} while (level > 0);
 }
