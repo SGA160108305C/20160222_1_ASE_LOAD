@@ -58,7 +58,7 @@ void GameState_ASE_Load::Render()
 
 void GameState_ASE_Load::OnEnterState()
 {
-	GameManager::GetCamera()->SetDistance(20.0f);
+	GameManager::GetCamera()->SetDistance(5.0f);
 	Initialize();
 }
 

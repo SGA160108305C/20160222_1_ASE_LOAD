@@ -316,6 +316,7 @@ void AseLoader::Process_MESH(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_MESH_NUMTVERTEX))
 		{		
 			//
+			uv.resize(GetInteger() * 2);
 		}
 		else if (IsEqual(aseToken, ID_MESH_TVERTLIST))
 		{		
@@ -419,6 +420,15 @@ void AseLoader::Process_MESH_TVERTLIST(OUT std::vector<D3DXVECTOR2>& uv)
 		else if (IsEqual(aseToken, ID_MESH_TVERT))
 		{		
 			//
+			int index = GetInteger();
+			float x = GetFloat();
+			float y = GetFloat();
+			float z = GetFloat();
+
+			printf_s("uv: %.2f / %.2f\n", x, y);
+
+			uv[index * 2 + 0].x = x;
+			uv[index * 2 + 1].y = 1.0f - y;
 		}
 	} while (level > 0);
 }
@@ -440,6 +450,17 @@ void AseLoader::Process_ID_MESH_TFACELIST(IN std::vector<D3DXVECTOR2>& uv, OUT s
 		else if (IsEqual(aseToken, ID_MESH_TFACE))
 		{		
 			//
+			int index = GetInteger();
+			GetToken();
+			int a = GetInteger();
+			GetToken();
+			int b = GetInteger();
+			GetToken();
+			int c = GetInteger();
+
+
+			vertex[index].tex.x = uv[index].x;
+			vertex[index].tex.y = 1.0f - uv[index].y;
 		}
 	} while (level > 0);
 }
@@ -464,10 +485,28 @@ void AseLoader::Process_MESH_NORMALS(OUT std::vector<FVF_PositionNormalTexture>&
 		else if (IsEqual(aseToken, ID_MESH_FACENORMAL))
 		{		
 			//
+			int index = GetInteger();
+			GetToken();
+			int a = GetFloat();
+			GetToken();
+			int b = GetFloat();
+			GetToken();
+			int c = GetFloat();
 		}
 		else if (IsEqual(aseToken, ID_MESH_VERTEXNORMAL))
 		{
 			//
+			index = GetInteger();
+			GetToken();
+			int a = GetFloat();
+			GetToken();
+			int b = GetFloat();
+			GetToken();
+			int c = GetFloat();
+
+			vertex[index].normal.x = a;
+			vertex[index].normal.z = b;
+			vertex[index].normal.y = c;
 		}
 	} while (level > 0);
 }
@@ -492,18 +531,46 @@ void AseLoader::Process_NODE_TM(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_TM_ROW0))
 		{		
 			//
+			float _11 = GetFloat();
+			float _12 = GetFloat();
+			float _13 = GetFloat();
+
+			world._11 = _11;
+			world._12 = _13;
+			world._13 = _12;
 		}
 		else if (IsEqual(aseToken, ID_TM_ROW1))
 		{		
 			//
+			float _31 = GetFloat();
+			float _32 = GetFloat();
+			float _33 = GetFloat();
+
+			world._21 = _31;
+			world._22 = _33;
+			world._23 = _32;
 		}
 		else if (IsEqual(aseToken, ID_TM_ROW2))
 		{		
 			//
+			float _21 = GetFloat();
+			float _22 = GetFloat();
+			float _23 = GetFloat();
+
+			world._31 = _21;
+			world._32 = _23;
+			world._33 = _22;
 		}
 		else if (IsEqual(aseToken, ID_TM_ROW3))
 		{		
 			//
+			float _41 = GetFloat();
+			float _42 = GetFloat();
+			float _43 = GetFloat();
+
+			world._41 = _41;
+			world._42 = _43;
+			world._43 = _42;
 		}
 	} while (level > 0);
 
