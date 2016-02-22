@@ -3,7 +3,7 @@
 
 # User-specific files
 *.suo
-*.user
+#*.user
 *.sln.docstates
 
 # Build results
@@ -14,7 +14,7 @@ x64/
 build/
 bld/
 [Bb]in/
-[Oo]bj/
+#[Oo]bj/
 
 # Roslyn cache directories
 *.ide/
@@ -37,7 +37,7 @@ dlldata.c
 *_i.h
 *.ilk
 *.meta
-*.obj
+#*.obj
 *.pch
 *.pdb
 *.pgc
@@ -187,3 +187,7 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+*.cd
+*.db
+
+#*.mtl
