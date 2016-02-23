@@ -316,7 +316,7 @@ void AseLoader::Process_MESH(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_MESH_NUMTVERTEX))
 		{		
 			//
-			uv.resize(GetInteger() * 2);
+			uv.resize(GetInteger());
 		}
 		else if (IsEqual(aseToken, ID_MESH_TVERTLIST))
 		{		
@@ -421,14 +421,10 @@ void AseLoader::Process_MESH_TVERTLIST(OUT std::vector<D3DXVECTOR2>& uv)
 		{		
 			//
 			int index = GetInteger();
-			float x = GetFloat();
-			float y = GetFloat();
-			float z = GetFloat();
+			float u = GetFloat();
+			float v = GetFloat();
 
-			printf_s("uv: %.2f / %.2f\n", x, y);
-
-			uv[index * 2 + 0].x = x;
-			uv[index * 2 + 1].y = 1.0f - y;
+			uv[index] = D3DXVECTOR2(u, 1 - v);
 		}
 	} while (level > 0);
 }
@@ -451,16 +447,13 @@ void AseLoader::Process_ID_MESH_TFACELIST(IN std::vector<D3DXVECTOR2>& uv, OUT s
 		{		
 			//
 			int index = GetInteger();
-			GetToken();
 			int a = GetInteger();
-			GetToken();
 			int b = GetInteger();
-			GetToken();
 			int c = GetInteger();
 
-
-			vertex[index].tex.x = uv[index].x;
-			vertex[index].tex.y = 1.0f - uv[index].y;
+			vertex[index * 3 + 0].tex = uv[a];
+			vertex[index * 3 + 1].tex = uv[c];
+			vertex[index * 3 + 2].tex = uv[b];
 		}
 	} while (level > 0);
 }
@@ -485,28 +478,21 @@ void AseLoader::Process_MESH_NORMALS(OUT std::vector<FVF_PositionNormalTexture>&
 		else if (IsEqual(aseToken, ID_MESH_FACENORMAL))
 		{		
 			//
-			int index = GetInteger();
-			GetToken();
-			int a = GetFloat();
-			GetToken();
-			int b = GetFloat();
-			GetToken();
-			int c = GetFloat();
+			index = GetInteger();
+			count = 0;
 		}
 		else if (IsEqual(aseToken, ID_MESH_VERTEXNORMAL))
 		{
 			//
-			index = GetInteger();
 			GetToken();
-			int a = GetFloat();
-			GetToken();
-			int b = GetFloat();
-			GetToken();
-			int c = GetFloat();
 
-			vertex[index].normal.x = a;
-			vertex[index].normal.z = b;
-			vertex[index].normal.y = c;
+			D3DXVECTOR3 normal;
+			normal.x = GetFloat();
+			normal.z = GetFloat();
+			normal.y = GetFloat();
+
+			vertex[index * 3 + modIndex[count]].normal = normal;
+			++count;
 		}
 	} while (level > 0);
 }
@@ -542,17 +528,6 @@ void AseLoader::Process_NODE_TM(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_TM_ROW1))
 		{		
 			//
-			float _31 = GetFloat();
-			float _32 = GetFloat();
-			float _33 = GetFloat();
-
-			world._21 = _31;
-			world._22 = _33;
-			world._23 = _32;
-		}
-		else if (IsEqual(aseToken, ID_TM_ROW2))
-		{		
-			//
 			float _21 = GetFloat();
 			float _22 = GetFloat();
 			float _23 = GetFloat();
@@ -560,6 +535,17 @@ void AseLoader::Process_NODE_TM(OUT AseFrame* frame)
 			world._31 = _21;
 			world._32 = _23;
 			world._33 = _22;
+		}
+		else if (IsEqual(aseToken, ID_TM_ROW2))
+		{		
+			//
+			float _31 = GetFloat();
+			float _32 = GetFloat();
+			float _33 = GetFloat();
+
+			world._21 = _31;
+			world._22 = _33;
+			world._23 = _32;
 		}
 		else if (IsEqual(aseToken, ID_TM_ROW3))
 		{		
@@ -620,6 +606,14 @@ void AseLoader::Process_POS_TRACK(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_POS_SAMPLE))
 		{
 			//
+			PositionSample ps;
+
+			ps.frame = GetInteger();
+			ps.pos.x = GetFloat();
+			ps.pos.y = GetFloat();
+			ps.pos.z = GetFloat();
+
+			posTrack.push_back(ps);
 		}
 	} while (level > 0);
 
@@ -643,6 +637,27 @@ void AseLoader::Process_ROT_TRACK(OUT AseFrame* frame)
 		else if (IsEqual(aseToken, ID_ROT_SAMPLE))
 		{		
 			//
+			RotateSample rs;
+
+			rs.frame = GetInteger();
+
+			float x = GetFloat();
+			float z = GetFloat();
+			float y = GetFloat();
+			float w = GetFloat();
+
+			//qx = ax * sin(angle / 2)
+			rs.quaternion.x = x * sin(w  / 2);
+			rs.quaternion.y = y * sin(w / 2);
+			rs.quaternion.z = z * sin(w / 2);
+			rs.quaternion.w = cos(w / 2);
+
+			if (!rotTrack.empty())
+			{
+				rs.quaternion = rotTrack.back().quaternion * rs.quaternion;
+			}
+
+			rotTrack.push_back(rs);
 		}
 	} while (level > 0);
 }
